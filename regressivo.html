@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juntos Pela Ísis | Controle de Entradas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      line-height: 1.5;
+    }
+    .description {
+      text-align: left;
+      margin: 0 auto 20px;
+      max-width: 600px;
+    }
+    .counter {
+      font-size: 2rem;
+      color: green;
+      font-weight: bold;
+    }
+    .progress {
+      font-size: 1.5rem;
+      color: blue;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .edit-button, .delete-button {
+      cursor: pointer;
+      padding: 5px 10px;
+      border: none;
+      font-size: 0.9rem;
+      color: white;
+    }
+    .edit-button {
+      background-color: orange;
+    }
+    .delete-button {
+      background-color: red;
+    }
+    @media (max-width: 768px) {
+      body {
+        font-size: 90%;
+      }
+      input, button {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Juntos Pela Ísis | Controle de Entradas<br>Meta: 50k até 12/01/2025</h1>
+    <div class="description">
+      <p>A Ísis precisa fazer uma cirurgia chamada laminotomia, que é um procedimento para aliviar a pressão na parte inferior da coluna, onde os nervos estão comprimidos. Além disso, a cirurgia também irá liberar a medula espinhal, que está presa por uma estrutura chamada "filum terminal", permitindo que ela funcione corretamente.</p>
+
+      <p>Essa cirurgia é extremamente importante porque vai resolver problemas graves causados pela pressão nos nervos da parte inferior da coluna e pela medula espinhal que está presa. Sem essa operação, ela pode enfrentar dores constantes, dificuldade para andar e realizar movimentos simples, além de fraqueza muscular e problemas de equilíbrio. Essas condições também podem afetar funções essenciais do corpo, comprometendo ainda mais sua qualidade de vida.</p>
+
+      <p>Se a situação não for tratada, os danos podem se tornar permanentes, prejudicando ainda mais sua saúde e desenvolvimento. Com a cirurgia, a pressão será aliviada, a medula será liberada, e isso permitirá que ela se mova melhor, viva sem dor e tenha um futuro mais saudável e confortável.</p>
+
+      <p>Além disso, os sintomas tendem a piorar com o tempo, mas se conseguir fazer a cirurgia agora, ela pode interromper esse avanço e reverter os danos existentes. Em contrapartida, se demorarmos a agir, tudo que ela tiver contraído será irreversível.</p>
+    </div>
+
+    <p class="counter" id="moneyCounter">R$ 0,00</p>
+    <p class="progress" id="progressCounter">0% concluído</p>
+
+    <input type="number" id="addAmount" placeholder="Digite o valor a acrescentar">
+    <input type="date" id="addDate">
+    <button id="addButton">Acrescentar</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Valor</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="historyTable">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const moneyCounter = document.getElementById("moneyCounter");
+    const progressCounter = document.getElementById("progressCounter");
+    const addAmountInput = document.getElementById("addAmount");
+    const addDateInput = document.getElementById("addDate");
+    const addButton = document.getElementById("addButton");
+    const historyTable = document.getElementById("historyTable");
+
+    let currentAmount = 0; // Valor inicial
+    const goalAmount = 50000; // Meta de 50 mil reais
+
+    function formatCurrency(value) {
+      return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function updateDisplay() {
+      moneyCounter.textContent = formatCurrency(currentAmount);
+      const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
+      progressCounter.textContent = `${percentage.toFixed(2)}% concluído`;
+    }
+
+    function addToHistory(value, date) {
+      const row = document.createElement("tr");
+      const valueCell = document.createElement("td");
+      const dateCell = document.createElement("td");
+      const actionsCell = document.createElement("td");
+
+      valueCell.textContent = formatCurrency(value);
+      dateCell.textContent = date || "Sem data";
+
+      const editButton = document.createElement("button");
+      editButton.textContent = "Editar";
+      editButton.classList.add("edit-button");
+      editButton.addEventListener("click", () => editEntry(row, value, date));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Excluir";
+      deleteButton.classList.add("delete-button");
+      deleteButton.addEventListener("click", () => deleteEntry(row, value));
+
+      actionsCell.appendChild(editButton);
+      actionsCell.appendChild(deleteButton);
+
+      row.appendChild(valueCell);
+      row.appendChild(dateCell);
+      row.appendChild(actionsCell);
+      historyTable.appendChild(row);
+    }
+
+    function editEntry(row, oldValue, oldDate) {
+      const newValue = parseFloat(prompt("Digite o novo valor:", oldValue));
+      const newDate = prompt("Digite a nova data (AAAA-MM-DD):", oldDate);
+
+      if (!isNaN(newValue) && newValue > 0 && newDate) {
+        const valueCell = row.children[0];
+        const dateCell = row.children[1];
+
+        currentAmount -= oldValue;
+        currentAmount += newValue;
+
+        valueCell.textContent = formatCurrency(newValue);
+        dateCell.textContent = newDate;
+
+        updateDisplay();
+      } else {
+        alert("Entrada inválida.");
+      }
+    }
+
+    function deleteEntry(row, value) {
+      if (confirm("Tem certeza de que deseja excluir esta entrada?")) {
+        historyTable.removeChild(row);
+        currentAmount -= value;
+        updateDisplay();
+      }
+    }
+
+    addButton.addEventListener("click", () => {
+      const addAmount = parseFloat(addAmountInput.value);
+      const addDate = addDateInput.value;
+
+      if (!isNaN(addAmount) && addAmount > 0) {
+        currentAmount += addAmount;
+        updateDisplay();
+        addToHistory(addAmount, addDate);
+        addAmountInput.value = ""; // Limpa o campo de entrada
+        addDateInput.value = ""; // Limpa o campo de data
+      } else {
+        alert("Por favor, insira um valor válido maior que zero.");
+      }
+    });
+
+    // Atualiza a exibição inicial
+    updateDisplay();
+  </script>
+</body>
+</html>
+
+
+
+
+
